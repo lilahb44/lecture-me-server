@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const asyncHandler = require("express-async-handler");
 const { check } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -8,7 +9,7 @@ const { asyncQuery } = require("../providers/mysqlPool");
 router.post(
   "/sign-in",
   validate([check("email").isEmail(), check("password").isLength({ min: 5 })]),
-  async (req, res) => {
+  asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const rows = await asyncQuery(
@@ -27,7 +28,7 @@ router.post(
     });
 
     res.json({ token });
-  }
+  })
 );
 
 module.exports = router;

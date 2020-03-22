@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const asyncHandler = require("express-async-handler");
 const { check } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -13,7 +14,7 @@ router.post(
     check("firstName").isLength({ min: 2 }),
     check("lastName").isLength({ min: 2 })
   ]),
-  async (req, res) => {
+  asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
 
     const result = await asyncQuery("INSERT INTO users SET ?", {
@@ -35,7 +36,7 @@ router.post(
     });
 
     res.json({ token });
-  }
+  })
 );
 
 module.exports = router;
