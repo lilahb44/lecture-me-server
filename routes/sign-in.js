@@ -17,11 +17,13 @@ router.post(
       [email]
     );
 
-    if (!rows.length) return res.status(400).json("Incorrect email.");
+    if (!rows.length)
+      return res.status(400).json({ error: "Incorrect email." });
 
     const isPasswordValid = await bcrypt.compare(password, rows[0].password);
 
-    if (!isPasswordValid) return res.status(400).json("Incorrect Password.");
+    if (!isPasswordValid)
+      return res.status(400).json({ error: "Incorrect Password." });
 
     const token = jwt.sign({}, process.env.JWT_SECRET, {
       subject: rows[0].id.toString()

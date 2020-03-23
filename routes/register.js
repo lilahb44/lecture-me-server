@@ -29,7 +29,7 @@ router.post(
     });
 
     if (result === "ER_DUP_ENTRY")
-      return res.status(400).json("Email already exists.");
+      return res.status(400).json({ error: "Email already exists." });
 
     const token = jwt.sign({}, process.env.JWT_SECRET, {
       subject: result.insertId.toString()
