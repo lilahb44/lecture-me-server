@@ -9,10 +9,10 @@ const { asyncQuery } = require("../providers/mysqlPool");
 router.post(
   "/register",
   validate([
-    check("email").isEmail(),
-    check("password").isLength({ min: 5 }),
-    check("firstName").isLength({ min: 2 }),
-    check("lastName").isLength({ min: 2 })
+    check("email").isEmail({ max: 50 }),
+    check("password").isLength({ min: 6, max: 32 }),
+    check("firstName").isLength({ min: 1, max: 45 }),
+    check("lastName").isLength({ min: 1, max: 45 })
   ]),
   asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
