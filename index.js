@@ -19,5 +19,6 @@ app.use(
 app.use(require("./routes/sign-in"));
 app.use(require("./routes/register"));
 app.use(require("./routes/protected"));
+app.use(require("./routes/users"));
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
