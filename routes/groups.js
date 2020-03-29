@@ -20,6 +20,7 @@ router.get(
 
 router.delete(
   "/groups",
+  validate([check("id").exists()]),
   asyncHandler(async (req, res) => {
     const userIdFromToken = req.user.sub;
     const id = req.body.id;
@@ -52,6 +53,20 @@ router.put(
       return res.status(400).json({ error: "Name already exists." });
 
     res.json(result.insertId);
+  })
+);
+
+router.post(
+  "/groups",
+  validate([check("id").exists(), check("name").isLength({ min: 1, max: 20 })]),
+  asyncHandler(async (req, res) => {
+    const { id, name } = req.body;
+    const userIdFromToken = req.user.sub;
+    const result = await asyncQuery(
+      "UPDATE groups SET name = ? WHERE id = ? AND userId = ?",
+      [name, id, userIdFromToken]
+    );
+    res.json(result.affectedRows === 1);
   })
 );
 
