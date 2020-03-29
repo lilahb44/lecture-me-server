@@ -16,4 +16,18 @@ router.post(
   })
 );
 
+router.delete(
+  "/groups",
+  asyncHandler(async (req, res) => {
+    const userIdFromToken = req.user.sub;
+    const id = req.body.id;
+    const result = await asyncQuery(
+      "DELETE FROM `groups` where id = ? AND userId = ?",
+      [id, userIdFromToken]
+    );
+
+    res.json(result.affectedRows === 1);
+  })
+);
+
 module.exports = router;
