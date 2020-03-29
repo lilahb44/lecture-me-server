@@ -9,8 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(
   jwt({
-    secret: process.env.JWT_SECRET,
-    getToken: req => req.body.token
+    secret: process.env.JWT_SECRET
   }).unless({
     path: ["/sign-in", "/register"]
   })
