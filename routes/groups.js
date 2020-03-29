@@ -4,7 +4,7 @@ const { asyncQuery } = require("../providers/mysqlPool");
 const validate = require("../middlewares/validate");
 const { check } = require("express-validator");
 
-router.post(
+router.get(
   "/groups",
   asyncHandler(async (req, res) => {
     const userIdFromToken = req.user.sub;

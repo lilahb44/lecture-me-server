@@ -2,7 +2,7 @@ const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
 const { asyncQuery } = require("../providers/mysqlPool");
 
-router.post(
+router.get(
   "/users",
   asyncHandler(async (req, res) => {
     const userIdFromToken = req.user.sub;
