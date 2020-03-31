@@ -39,8 +39,8 @@ router.delete(
     const groupId = req.params.groupId;
     const id = req.body.id;
     const result = await asyncQuery(
-      "DELETE FROM `guests` where id = 1 AND groupId = 2 AND groupId IN (SELECT id from groups WHERE userId = 62)",
-      [groupId, id, userIdFromToken]
+      "DELETE FROM `guests` where id = ? AND groupId = ? AND groupId IN (SELECT id from groups WHERE userId = ?)",
+      [id, groupId, userIdFromToken]
     );
 
     res.json(result.affectedRows === 1);
