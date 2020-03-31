@@ -4,19 +4,33 @@ const { asyncQuery } = require("../providers/mysqlPool");
 const validate = require("../middlewares/validate");
 const { check } = require("express-validator");
 
+const validateGroupUserConnection = asyncHandler(async (req, res, next) => {
+  const userIdFromToken = req.user.sub;
+  const groupId = req.params.groupId;
+
+  const [
+    { userConnectedToGroup }
+  ] = await asyncQuery(
+    "select count(*) AS userConnectedToGroup from groups where id=? and userId=?",
+    [groupId, userIdFromToken]
+  );
+
+  if (!userConnectedToGroup)
+    return res.status(400).json({ error: "Group doesn't match to user." });
+
+  next();
+});
+
 router.get(
   "/groups/:groupId",
+  validateGroupUserConnection,
   asyncHandler(async (req, res) => {
-    const userIdFromToken = req.user.sub;
     const groupId = req.params.groupId;
 
-    const groups = await asyncQuery(
-      "select id, name from groups where userId = ? AND id = ?",
-      [userIdFromToken, groupId]
+    const [group] = await asyncQuery(
+      "select id, name from groups where id = ?",
+      [groupId]
     );
-
-    if (groups.length === 0)
-      return res.status(400).json({ error: "Group not exists." });
 
     const guests = await asyncQuery(
       "select id, firstName, lastName, email from guests where groupId = ?",
@@ -24,8 +38,8 @@ router.get(
     );
 
     res.json({
-      id: groups[0].id,
-      name: groups[0].name,
+      id: group.id,
+      name: group.name,
       guests
     });
   })
@@ -34,13 +48,13 @@ router.get(
 router.delete(
   "/groups/:groupId/guests",
   validate([check("id").exists()]),
+  validateGroupUserConnection,
   asyncHandler(async (req, res) => {
-    const userIdFromToken = req.user.sub;
     const groupId = req.params.groupId;
     const id = req.body.id;
     const result = await asyncQuery(
-      "DELETE FROM `guests` where id = ? AND groupId = ? AND groupId IN (SELECT id from groups WHERE userId = ?)",
-      [id, groupId, userIdFromToken]
+      "DELETE FROM `guests` where id = ? AND groupId = ?",
+      [id, groupId]
     );
 
     res.json(result.affectedRows === 1);
@@ -49,13 +63,14 @@ router.delete(
 
 router.put(
   "/groups/:groupId/guests",
-  validate([check("firstName").isLength({ min: 1, max: 45 })]),
-  validate([check("lastName").isLength({ min: 1, max: 45 })]),
-  validate([check("email").isEmail({ max: 50 })]),
+  validate([
+    check("firstName").isLength({ min: 1, max: 45 }),
+    check("lastName").isLength({ min: 1, max: 45 }),
+    check("email").isEmail({ max: 50 })
+  ]),
+  validateGroupUserConnection,
   asyncHandler(async (req, res) => {
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
-    const email = req.body.email;
+    const { firstName, lastName, email } = req.body;
     const groupId = req.params.groupId;
 
     const result = await asyncQuery("INSERT INTO guests SET ?", {
@@ -73,6 +88,34 @@ router.put(
       return res.status(400).json({ error: "Email already exists." });
 
     res.json(result.insertId);
+  })
+);
+
+router.post(
+  "/groups/:groupId/guests",
+  validate([
+    check("id").exists(),
+    check("firstName").isLength({ min: 1, max: 45 }),
+    check("lastName").isLength({ min: 1, max: 45 }),
+    check("email").isEmail({ max: 50 })
+  ]),
+  validateGroupUserConnection,
+  asyncHandler(async (req, res) => {
+    const { id, firstName, lastName, email } = req.body;
+    const groupId = req.params.groupId;
+    const result = await asyncQuery(
+      "UPDATE guests SET firstName = ?, lastName = ?,  email = ? where id = ? AND groupId = ?",
+      [firstName, lastName, email, id, groupId]
+    ).catch(err => {
+      if (err.code !== "ER_DUP_ENTRY") throw err;
+
+      return err.code;
+    });
+
+    if (result === "ER_DUP_ENTRY")
+      return res.status(400).json({ error: "Email already exists." });
+
+    res.json(result.affectedRows === 1);
   })
 );
 
