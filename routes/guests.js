@@ -30,4 +30,20 @@ router.get(
     });
   })
 );
+
+router.delete(
+  "/groups/:groupId/guests",
+  validate([check("id").exists()]),
+  asyncHandler(async (req, res) => {
+    const userIdFromToken = req.user.sub;
+    const groupId = req.params.groupId;
+    const id = req.body.id;
+    const result = await asyncQuery(
+      "DELETE FROM `guests` where id = 1 AND groupId = 2 AND groupId IN (SELECT id from groups WHERE userId = 62)",
+      [groupId, id, userIdFromToken]
+    );
+
+    res.json(result.affectedRows === 1);
+  })
+);
 module.exports = router;
