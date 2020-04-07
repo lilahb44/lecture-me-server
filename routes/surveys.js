@@ -52,11 +52,13 @@ router.put(
     const lecturer1 = req.body.lecturer1;
     const lecturer2 = req.body.lecturer2;
     const groupId = req.body.groupId;
+    const date = new Date();
 
     const result = await asyncQuery("INSERT INTO surveys SET ?", {
       lecturer1,
       lecturer2,
       groupId,
+      date,
     });
 
     surveyId = result.insertId;
