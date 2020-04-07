@@ -8,8 +8,7 @@ router.get(
     const userIdFromToken = req.user.sub;
 
     const lecturers = await asyncQuery(
-      `SELECT distinct
-      CONCAT(l.firstName," ",l.lastName) AS lecturer_name, id
+      `SELECT id, CONCAT(l.firstName," ",l.lastName) AS lecturer_name
       FROM lecturers l`
     );
 
