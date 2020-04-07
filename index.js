@@ -22,6 +22,6 @@ app.use(require("./routes/users"));
 app.use(require("./routes/groups"));
 app.use(require("./routes/guests"));
 app.use(require("./routes/surveys"));
-app.use(require("./routes/createSurvey"));
+app.use(require("./routes/lecturers"));
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
