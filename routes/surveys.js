@@ -54,6 +54,19 @@ router.put(
     const groupId = req.body.groupId;
     const date = new Date();
 
+    const checkGuests = await asyncQuery(
+      `SELECT COUNT(g.id) AS guests
+      from guests g 
+      WHERE g.groupId = ? 
+      `,
+      [groupId]
+    );
+
+    if (checkGuests[0].guests === 0)
+      return res
+        .status(400)
+        .json({ error: "Your group don`t have guests yet." });
+
     const result = await asyncQuery("INSERT INTO surveys SET ?", {
       lecturer1,
       lecturer2,
