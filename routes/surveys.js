@@ -3,6 +3,8 @@ const asyncHandler = require("express-async-handler");
 const { asyncQuery } = require("../providers/mysqlPool");
 const validate = require("../middlewares/validate");
 const { check } = require("express-validator");
+const sgMail = require("../providers/sendgrid.js");
+const jwt = require("jsonwebtoken");
 
 router.get(
   "/surveys",
@@ -82,6 +84,41 @@ router.put(
       `,
       [surveyId]
     );
+
+    const voters = await asyncQuery(
+      `SELECT id, firstName, email
+      FROM votes
+      where surveyId = ?
+      `,
+      [surveyId]
+    );
+
+    const groupName = await asyncQuery(
+      `SELECT g.name
+      FROM groups g
+      JOIN surveys s
+      ON g.id = s.groupId
+      where s.id = ?
+      `,
+      [surveyId]
+    );
+
+    const messages = voters.map((x) => {
+      return {
+        to: x.email,
+        from: "lilahb44@gmail.com",
+        template_id: "d-55c184fc24034695a4e6b5d167530227",
+        dynamic_template_data: {
+          firstName: x.firstName,
+          name: groupName[0].name,
+          voterToken: jwt.sign({}, process.env.JWT_VOTERS_SECRET, {
+            subject: x.id.toString(),
+          }),
+        },
+      };
+    });
+
+    await sgMail.send(messages);
 
     res.json(true);
   })
