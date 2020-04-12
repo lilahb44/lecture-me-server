@@ -2,6 +2,8 @@ const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
 const { asyncQuery } = require("../providers/mysqlPool");
 const jwt = require("express-jwt");
+const validate = require("../middlewares/validate");
+const { check } = require("express-validator");
 
 router.use(
   jwt({
@@ -26,6 +28,23 @@ router.get(
     );
 
     res.json(lecturers);
+  })
+);
+
+router.post(
+  "/votes",
+  validate([check("isVoted").isInt({ min: 1, max: 2 })]),
+  asyncHandler(async (req, res) => {
+    const voteIdFromToken = req.user.sub;
+    const isVoted = req.body.isVoted;
+
+    const voted = await asyncQuery(
+      `UPDATE votes SET isVoted = ?
+       WHERE id =?`,
+      [isVoted, voteIdFromToken]
+    );
+
+    res.json(true);
   })
 );
 
