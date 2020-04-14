@@ -12,7 +12,7 @@ router.post(
     check("email").isEmail({ max: 50 }),
     check("password").isLength({ min: 6, max: 32 }),
     check("firstName").isLength({ min: 1, max: 45 }),
-    check("lastName").isLength({ min: 1, max: 45 })
+    check("lastName").isLength({ min: 1, max: 45 }),
   ]),
   asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
@@ -21,8 +21,8 @@ router.post(
       email,
       password: await bcrypt.hash(password, 3),
       firstName,
-      lastName
-    }).catch(err => {
+      lastName,
+    }).catch((err) => {
       if (err.code !== "ER_DUP_ENTRY") throw err;
 
       return err.code;
@@ -31,9 +31,10 @@ router.post(
     if (result === "ER_DUP_ENTRY")
       return res.status(400).json({ error: "Email already exists." });
 
-    const token = jwt.sign({}, process.env.JWT_SECRET, {
-      subject: result.insertId.toString()
-    });
+    const token = jwt.sign(
+      { sub: result.insertId.toString(), type: "user" },
+      process.env.JWT_SECRET
+    );
 
     res.json({ token });
   })

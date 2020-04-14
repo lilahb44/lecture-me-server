@@ -5,11 +5,11 @@ const validate = require("../middlewares/validate");
 const { check } = require("express-validator");
 
 const validateGroupUserConnection = asyncHandler(async (req, res, next) => {
-  const userIdFromToken = req.user.sub;
+  const userIdFromToken = req.jwtPayload.sub;
   const groupId = req.params.groupId;
 
   const [
-    { userConnectedToGroup }
+    { userConnectedToGroup },
   ] = await asyncQuery(
     "select count(*) AS userConnectedToGroup from groups where id=? and userId=?",
     [groupId, userIdFromToken]
@@ -40,7 +40,7 @@ router.get(
     res.json({
       id: group.id,
       name: group.name,
-      guests
+      guests,
     });
   })
 );
@@ -66,7 +66,7 @@ router.put(
   validate([
     check("firstName").isLength({ min: 1, max: 45 }),
     check("lastName").isLength({ min: 1, max: 45 }),
-    check("email").isEmail({ max: 50 })
+    check("email").isEmail({ max: 50 }),
   ]),
   validateGroupUserConnection,
   asyncHandler(async (req, res) => {
@@ -77,8 +77,8 @@ router.put(
       firstName,
       lastName,
       email,
-      groupId
-    }).catch(err => {
+      groupId,
+    }).catch((err) => {
       if (err.code !== "ER_DUP_ENTRY") throw err;
 
       return err.code;
@@ -97,7 +97,7 @@ router.post(
     check("id").exists(),
     check("firstName").isLength({ min: 1, max: 45 }),
     check("lastName").isLength({ min: 1, max: 45 }),
-    check("email").isEmail({ max: 50 })
+    check("email").isEmail({ max: 50 }),
   ]),
   validateGroupUserConnection,
   asyncHandler(async (req, res) => {
@@ -106,7 +106,7 @@ router.post(
     const result = await asyncQuery(
       "UPDATE guests SET firstName = ?, lastName = ?,  email = ? where id = ? AND groupId = ?",
       [firstName, lastName, email, id, groupId]
-    ).catch(err => {
+    ).catch((err) => {
       if (err.code !== "ER_DUP_ENTRY") throw err;
 
       return err.code;

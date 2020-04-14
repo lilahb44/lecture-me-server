@@ -5,16 +5,10 @@ const jwt = require("express-jwt");
 const validate = require("../middlewares/validate");
 const { check } = require("express-validator");
 
-router.use(
-  jwt({
-    secret: process.env.JWT_VOTERS_SECRET,
-  })
-);
-
 router.get(
   "/votes",
   asyncHandler(async (req, res) => {
-    const voteIdFromToken = req.user.sub;
+    const voteIdFromToken = req.jwtPayload.sub;
 
     const [lecturers] = await asyncQuery(
       `SELECT CONCAT(l1.firstName," ",l1.lastName) AS lecturer1_name,
@@ -35,7 +29,7 @@ router.post(
   "/votes",
   validate([check("isVoted").isInt({ min: 1, max: 2 })]),
   asyncHandler(async (req, res) => {
-    const voteIdFromToken = req.user.sub;
+    const voteIdFromToken = req.jwtPayload.sub;
     const isVoted = req.body.isVoted;
 
     const voted = await asyncQuery(

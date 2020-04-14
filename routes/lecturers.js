@@ -5,7 +5,7 @@ const { asyncQuery } = require("../providers/mysqlPool");
 router.get(
   "/lecturers",
   asyncHandler(async (req, res) => {
-    const userIdFromToken = req.user.sub;
+    const userIdFromToken = req.jwtPayload.sub;
 
     const lecturers = await asyncQuery(
       `SELECT id, CONCAT(l.firstName," ",l.lastName) AS lecturer_name

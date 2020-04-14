@@ -28,9 +28,10 @@ router.post(
     if (!isPasswordValid)
       return res.status(400).json({ error: "Incorrect Password." });
 
-    const token = jwt.sign({}, process.env.JWT_SECRET, {
-      subject: rows[0].id.toString()
-    });
+    const token = jwt.sign(
+      { sub: rows[0].id.toString(), type: "user" },
+      process.env.JWT_SECRET
+    );
 
     res.json({ token });
   })

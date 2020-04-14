@@ -7,22 +7,33 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
+
+// No authentication
+app.use(require("./routes/sign-in")).use(require("./routes/register"));
+
 app.use(
   jwt({
     secret: process.env.JWT_SECRET,
-  }).unless({
-    path: ["/sign-in", "/register", "/votes"],
+    requestProperty: "jwtPayload",
   })
 );
 
-app.use(require("./routes/sign-in"));
-app.use(require("./routes/register"));
-app.use(require("./routes/protected"));
-app.use(require("./routes/users"));
-app.use(require("./routes/groups"));
-app.use(require("./routes/guests"));
-app.use(require("./routes/surveys"));
-app.use(require("./routes/lecturers"));
-app.use(require("./routes/votes"));
+const validateJWTType = (type) => (req, res, next) =>
+  req.jwtPayload.type !== type ? res.sendStatus(401) : next();
+
+app.use(
+  express
+    .Router()
+    .use(validateJWTType("user"))
+    .use(require("./routes/users"))
+    .use(require("./routes/groups"))
+    .use(require("./routes/guests"))
+    .use(require("./routes/surveys"))
+    .use(require("./routes/lecturers"))
+);
+
+app.use(
+  express.Router().use(validateJWTType("voter")).use(require("./routes/votes"))
+);
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));

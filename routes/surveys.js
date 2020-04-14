@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 router.get(
   "/surveys",
   asyncHandler(async (req, res) => {
-    const userIdFromToken = req.user.sub;
+    const userIdFromToken = req.jwtPayload.sub;
 
     const surveys = await asyncQuery(
       `select s.*,
@@ -111,9 +111,10 @@ router.put(
         dynamic_template_data: {
           firstName: x.firstName,
           name: groupName[0].name,
-          voterToken: jwt.sign({}, process.env.JWT_VOTERS_SECRET, {
-            subject: x.id.toString(),
-          }),
+          voterToken: jwt.sign(
+            { sub: x.id.toString(), type: "voter" },
+            process.env.JWT_SECRET
+          ),
         },
       };
     });
