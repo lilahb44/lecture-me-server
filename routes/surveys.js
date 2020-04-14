@@ -20,19 +20,18 @@ router.get(
         votesSum.voted1+votesSum.voted2 AS totalVotes,
         CONCAT(FORMAT(IF(votesSum.voted1=0,0,(votesSum.voted1/(votesSum.voted1+votesSum.voted2)*100)),2),'%') as percentageVoted1,
       CONCAT(FORMAT(IF(votesSum.voted2=0,0,(votesSum.voted2/(votesSum.voted1+votesSum.voted2)*100)),2),'%') as percentageVoted2
-    
           from (
             SELECT surveyId, COUNT(IF(isVoted=1,1,NULL)) as voted1, COUNT(IF(isVoted=2,1,NULL)) as voted2, COUNT(IF(isVoted is NULL,1,NULL)) as notVoted
             FROM votes
               Where surveyId IN (
                       Select surveyId
-                      From surveys
-                      NATURAL JOIN groups
-                      where groups.userId = ?
+                      From surveys s
+                      JOIN groups g on s.groupId = g.id
+                      where g.userId = ?
                     )
             GROUP BY surveyId
               ) votesSum
-          Join surveys s ON(s.id=votesSum.surveyId)
+          JOIN surveys s ON(s.id=votesSum.surveyId)
           JOIN groups g ON(g.id=s.groupId)
           JOIN lecturers l1 ON(s.lecturer1 = l1.id)
           JOIN lecturers l2 ON(s.lecturer2 = l2.id)`,
