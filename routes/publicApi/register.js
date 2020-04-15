@@ -3,8 +3,8 @@ const asyncHandler = require("express-async-handler");
 const { check } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const validate = require("../middlewares/validate");
-const { asyncQuery } = require("../providers/mysqlPool");
+const validate = require("../../middlewares/validate");
+const { asyncQuery } = require("../../providers/mysqlPool");
 
 router.post(
   "/register",

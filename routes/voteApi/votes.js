@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
-const { asyncQuery } = require("../providers/mysqlPool");
+const { asyncQuery } = require("../../providers/mysqlPool");
 const jwt = require("express-jwt");
-const validate = require("../middlewares/validate");
+const validate = require("../../middlewares/validate");
 const { check } = require("express-validator");
 
 router.get(

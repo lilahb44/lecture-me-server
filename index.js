@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const requireDir = require("require-dir");
 const cors = require("cors");
 const jwt = require("express-jwt");
 const app = express();
@@ -9,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // No authentication
-app.use(require("./routes/sign-in")).use(require("./routes/register"));
+app.use("/publicApi", Object.values(requireDir("./routes/publicApi")));
 
 app.use(
   jwt({
@@ -22,18 +23,15 @@ const validateJWTType = (type) => (req, res, next) =>
   req.jwtPayload.type !== type ? res.sendStatus(401) : next();
 
 app.use(
-  express
-    .Router()
-    .use(validateJWTType("user"))
-    .use(require("./routes/users"))
-    .use(require("./routes/groups"))
-    .use(require("./routes/guests"))
-    .use(require("./routes/surveys"))
-    .use(require("./routes/lecturers"))
+  "/userApi",
+  validateJWTType("user"),
+  Object.values(requireDir("./routes/userApi"))
 );
 
 app.use(
-  express.Router().use(validateJWTType("voter")).use(require("./routes/votes"))
+  "/voteApi",
+  validateJWTType("voter"),
+  Object.values(requireDir("./routes/voteApi"))
 );
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));

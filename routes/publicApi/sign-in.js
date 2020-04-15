@@ -3,14 +3,14 @@ const asyncHandler = require("express-async-handler");
 const { check } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const validate = require("../middlewares/validate");
-const { asyncQuery } = require("../providers/mysqlPool");
+const validate = require("../../middlewares/validate");
+const { asyncQuery } = require("../../providers/mysqlPool");
 
 router.post(
   "/sign-in",
   validate([
     check("email").isEmail({ max: 50 }),
-    check("password").isLength({ min: 6, max: 32 })
+    check("password").isLength({ min: 6, max: 32 }),
   ]),
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;

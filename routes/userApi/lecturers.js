@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
-const { asyncQuery } = require("../providers/mysqlPool");
+const { asyncQuery } = require("../../providers/mysqlPool");
 
 router.get(
   "/lecturers",

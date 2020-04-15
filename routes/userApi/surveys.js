@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const asyncHandler = require("express-async-handler");
-const { asyncQuery } = require("../providers/mysqlPool");
-const validate = require("../middlewares/validate");
+const { asyncQuery } = require("../../providers/mysqlPool");
+const validate = require("../../middlewares/validate");
 const { check } = require("express-validator");
-const sgMail = require("../providers/sendgrid.js");
+const sgMail = require("../../providers/sendgrid.js");
 const jwt = require("jsonwebtoken");
 
 router.get(
