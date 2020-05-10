@@ -16,4 +16,21 @@ router.get(
   })
 );
 
+router.get(
+  "/lecturers/:lectureId",
+  asyncHandler(async (req, res) => {
+    const userIdFromToken = req.jwtPayload.sub;
+    const lectureId = req.params.lectureId;
+
+    const [lecturer] = await asyncQuery(
+      `SELECT id, CONCAT(l.firstName," ",l.lastName) AS lecturer_name, catagory,email
+      FROM lecturers l
+      WHERE id = ?`,
+      [lectureId]
+    );
+
+    res.json(lecturer);
+  })
+);
+
 module.exports = router;
