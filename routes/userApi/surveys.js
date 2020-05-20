@@ -105,8 +105,8 @@ router.put(
     const messages = voters.map((x) => {
       return {
         to: x.email,
-        from: "lilahb44@gmail.com",
-        template_id: "d-55c184fc24034695a4e6b5d167530227",
+        from: "lecturemeproject@gmail.com",
+        template_id: "d-8785d6ecf3d8425da100be8653ac65e0",
         dynamic_template_data: {
           firstName: x.firstName,
           name: groupName[0].name,
