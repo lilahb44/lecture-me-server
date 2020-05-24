@@ -34,4 +34,10 @@ app.use(
   Object.values(requireDir("./routes/voteApi"))
 );
 
+app.use(
+  "/lecturerApi",
+  validateJWTType("lecturer"),
+  Object.values(requireDir("./routes/lecturerApi"))
+);
+
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
