@@ -24,4 +24,51 @@ router.get(
   })
 );
 
+//
+router.put(
+  "/orders",
+  // validate([check("lecturer").exists(), check("groupId").exists()]),
+  asyncHandler(async (req, res) => {
+    const date = req.body.date;
+    const lecturerId = req.body.lecturerId;
+    const groupId = req.body.groupId;
+    const address = req.body.address;
+
+    const result = await asyncQuery(
+      "INSERT INTO orders (date, lecturerId, groupId, address) values (? ,? ,? ,?)",
+      [date, lecturerId, groupId, address]
+    );
+
+    const [lecturer] = await asyncQuery(
+      `SELECT l.firstName, l.email
+      FROM lecturers l
+      JOIN orders o ON l.id=o.lecturerId
+      WHERE o.lecturerId = ?`,
+      [lecturerId]
+    );
+
+    orderId = result.insertId;
+
+    console.log("email:", lecturer.email);
+
+    const message = await sgMail.send({
+      to: lecturer.email,
+      from: "lecturemeproject@gmail.com",
+      template_id: "d-168cc1c0de3045f192f8abac273c7e56",
+      dynamic_template_data: {
+        firstName: lecturer.firstName,
+        date: date,
+        address: address,
+        voterToken: jwt.sign(
+          { sub: lecturerId.toString(), type: "lecturer" },
+          process.env.JWT_SECRET
+        ),
+      },
+    });
+
+    res.json(true);
+  })
+);
+//
+
 module.exports = router;
