@@ -9,12 +9,13 @@ router.post(
   "/invitation",
   validate([check("status").isInt({ min: 0, max: 1 })]),
   asyncHandler(async (req, res) => {
-    const invitationIdFromToken = req.jwtPayload.sub;
+    const LecturerIdFromToken = req.jwtPayload.sub;
+    const invitationIdFromToken = req.jwtPayload.orderId;
     const status = req.body.status;
 
     const updateStatus = await asyncQuery(
       `UPDATE orders SET status = ?
-       WHERE id =?`,
+      WHERE orders.id = ?`,
       [status, invitationIdFromToken]
     );
 

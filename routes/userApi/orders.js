@@ -49,8 +49,6 @@ router.put(
 
     orderId = result.insertId;
 
-    console.log("email:", lecturer.email);
-
     const message = await sgMail.send({
       to: lecturer.email,
       from: "lecturemeproject@gmail.com",
@@ -59,13 +57,16 @@ router.put(
         firstName: lecturer.firstName,
         date: date,
         address: address,
-        voterToken: jwt.sign(
-          { sub: lecturerId.toString(), type: "lecturer" },
+        lecturerToken: jwt.sign(
+          {
+            sub: lecturerId.toString(),
+            orderId: orderId.toString(),
+            type: "lecturer",
+          },
           process.env.JWT_SECRET
         ),
       },
     });
-
     res.json(true);
   })
 );
