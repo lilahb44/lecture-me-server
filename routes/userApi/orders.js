@@ -36,7 +36,7 @@ router.put(
 
     const result = await asyncQuery(
       "INSERT INTO orders (date, lecturerId, groupId, address) values (? ,? ,? ,?)",
-      [date, lecturerId, groupId, address]
+      [new Date(date), lecturerId, groupId, address]
     );
 
     const [lecturer] = await asyncQuery(
