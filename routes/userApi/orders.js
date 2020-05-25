@@ -12,7 +12,7 @@ router.get(
     const userIdFromToken = req.jwtPayload.sub;
 
     const orders = await asyncQuery(
-      `select g.name AS groupName, CONCAT(l.firstName," ",l.lastName) AS lecturer, o.address, o.date, o.status
+      `select g.name AS groupName, CONCAT(l.firstName," ",l.lastName) AS lecturer, o.address, o.date, IF(o.status=1,"Accept", IF(o.status=0,"Dicline", null)) as status
       from orders o
       JOIN groups g ON g.id=o.groupId
       JOIN lecturers l ON o.lecturerId = l.id
