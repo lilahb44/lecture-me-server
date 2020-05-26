@@ -12,7 +12,7 @@ router.get(
     const userIdFromToken = req.jwtPayload.sub;
 
     const orders = await asyncQuery(
-      `select g.name AS groupName, CONCAT(l.firstName," ",l.lastName) AS lecturer, o.address, o.date, IF(o.status=1,"Accept", IF(o.status=0,"Decline", null)) as status
+      `select o.id, g.name AS groupName, CONCAT(l.firstName," ",l.lastName) AS lecturer, o.address, o.date, IF(o.status=1,"Accept", IF(o.status=0,"Decline", null)) as status
       from orders o
       JOIN groups g ON g.id=o.groupId
       JOIN lecturers l ON o.lecturerId = l.id
@@ -33,10 +33,11 @@ router.put(
     const lecturerId = req.body.lecturerId;
     const groupId = req.body.groupId;
     const address = req.body.address;
+    const price = req.body.price;
 
     const result = await asyncQuery(
-      "INSERT INTO orders (date, lecturerId, groupId, address) values (? ,? ,? ,?)",
-      [new Date(date), lecturerId, groupId, address]
+      "INSERT INTO orders (date, lecturerId, groupId, address, price) values (? ,? ,? ,? ,?)",
+      [new Date(date), lecturerId, groupId, address, price]
     );
 
     const [lecturer] = await asyncQuery(
@@ -70,6 +71,10 @@ router.put(
     res.json(true);
   })
 );
-//
+
+router.put(
+  "/orders/paypal-pay",
+  asyncHandler(async (req, res) => {})
+);
 
 module.exports = router;
