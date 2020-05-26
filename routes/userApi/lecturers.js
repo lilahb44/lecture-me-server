@@ -23,7 +23,7 @@ router.get(
     const lectureId = req.params.lectureId;
 
     const [lecturer] = await asyncQuery(
-      `SELECT id, CONCAT(l.firstName," ",l.lastName) AS lecturer_name, catagory,email
+      `SELECT id, CONCAT(l.firstName," ",l.lastName) AS lecturer_name, catagory,email, price
       FROM lecturers l
       WHERE id = ?`,
       [lectureId]
