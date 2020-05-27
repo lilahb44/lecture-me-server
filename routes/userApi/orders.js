@@ -96,7 +96,9 @@ router.post(
     if (price === undefined)
       return res.status(400).json({ error: "Order does not exists" });
 
-    if (paypalOrder.result.purchase_units[0].amount.value != price)
+    if (
+      parseInt(paypalOrder.result.purchase_units[0].amount.value) != price.price
+    )
       return res.status(400).json({ error: "Price does not match the order" });
 
     const saveTransaction = await asyncQuery(
