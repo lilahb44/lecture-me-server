@@ -7,7 +7,7 @@ const { check } = require("express-validator");
 
 router.post(
   "/invitation",
-  validate([check("status").isInt({ min: 0, max: 1 })]),
+  validate([check("status").isInt({ min: 0, max: 2 })]),
   asyncHandler(async (req, res) => {
     const LecturerIdFromToken = req.jwtPayload.sub;
     const invitationIdFromToken = req.jwtPayload.orderId;
