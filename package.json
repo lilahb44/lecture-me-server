@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/lilahb44/lecture-me-server#readme",
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.2",
     "@sendgrid/mail": "^7.0.0",
     "bcrypt": "^4.0.1",
     "cors": "^2.8.5",

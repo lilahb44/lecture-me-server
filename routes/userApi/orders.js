@@ -5,6 +5,8 @@ const validate = require("../../middlewares/validate");
 const { check } = require("express-validator");
 const sgMail = require("../../providers/sendgrid.js");
 const jwt = require("jsonwebtoken");
+const checkoutNodeJssdk = require("@paypal/checkout-server-sdk");
+const payPalClient = require("../../providers/paypal");
 
 router.get(
   "/orders",
@@ -72,9 +74,39 @@ router.put(
   })
 );
 
-router.put(
+router.post(
   "/orders/paypal-pay",
-  asyncHandler(async (req, res) => {})
+  asyncHandler(async (req, res) => {
+    const paypalOrderID = req.body.orderId;
+
+    const paypalOrder = await payPalClient().execute(
+      new checkoutNodeJssdk.orders.OrdersGetRequest(paypalOrderID)
+    );
+
+    const lecturerOrderId = paypalOrder.result.purchase_units[0].custom_id;
+
+    const userIdFromToken = req.jwtPayload.sub;
+    const [
+      price,
+    ] = await asyncQuery(
+      "SELECT price FROM orders o JOIN groups g ON o.groupId = g.id WHERE o.id = ? AND g.userId = ?",
+      [lecturerOrderId, userIdFromToken]
+    );
+
+    if (price === undefined)
+      return res.status(400).json({ error: "Order does not exists" });
+
+    if (paypalOrder.result.purchase_units[0].amount.value != price)
+      return res.status(400).json({ error: "Price does not match the order" });
+
+    const saveTransaction = await asyncQuery(
+      `UPDATE orders SET status = 2, paypalOrderId = ?
+      WHERE orders.id = ?`,
+      [paypalOrderID, lecturerOrderId]
+    );
+
+    res.json(saveTransaction.affectedRows === 1);
+  })
 );
 
 module.exports = router;
