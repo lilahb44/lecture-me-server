@@ -107,6 +107,32 @@ router.post(
       [paypalOrderID, lecturerOrderId]
     );
 
+    const [lecturer] = await asyncQuery(
+      `SELECT l.firstName, l.email
+      FROM lecturers l
+      JOIN orders o ON l.id=o.lecturerId
+      WHERE o.id = ?`,
+      [lecturerOrderId]
+    );
+
+    const [
+      orderDetails,
+    ] = await asyncQuery(
+      "SELECT o.price, o.date, o.address FROM orders o JOIN groups g ON o.groupId = g.id WHERE o.id = ? AND g.userId = ?",
+      [lecturerOrderId, userIdFromToken]
+    );
+
+    const paymentMessageToLecturer = await sgMail.send({
+      to: lecturer.email,
+      from: "lecturemeproject@gmail.com",
+      template_id: "d-5b3fa860febe4f4f8c10a0c047647d3a",
+      dynamic_template_data: {
+        firstName: lecturer.firstName,
+        price: orderDetails.price,
+        date: orderDetails.date,
+        address: orderDetails.address,
+      },
+    });
     res.json(saveTransaction.affectedRows === 1);
   })
 );
