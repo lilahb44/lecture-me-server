@@ -34,8 +34,9 @@ router.get(
           JOIN surveys s ON(s.id=votesSum.surveyId)
           JOIN groups g ON(g.id=s.groupId)
           JOIN lecturers l1 ON(s.lecturer1 = l1.id)
-          JOIN lecturers l2 ON(s.lecturer2 = l2.id)`,
-      [userIdFromToken]
+          JOIN lecturers l2 ON(s.lecturer2 = l2.id)
+          WHERE g.userId = ?`,
+      [userIdFromToken, userIdFromToken]
     );
 
     res.json(surveys);
